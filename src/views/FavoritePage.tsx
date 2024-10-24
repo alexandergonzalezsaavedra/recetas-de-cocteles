@@ -1,5 +1,5 @@
 const FavoritePage = () => {
-	return <div>Favoritos</div>;
+	return <>Favoritos</>;
 };
 
 export default FavoritePage;
