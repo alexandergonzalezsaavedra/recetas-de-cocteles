@@ -1,8 +1,43 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState, ChangeEvent, FormEvent } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAppStore } from '../../stores/useAppStore';
 const Header = () => {
+	const initialSatate = {
+		ingredient: '',
+		category: '',
+	};
+	const [searchFilters, setSearchFilters] = useState(initialSatate);
 	const { pathname } = useLocation();
 	const isHome = useMemo(() => pathname === '/', [pathname]);
+	const fetchCategories = useAppStore((state) => state.fetchCategories);
+	const searchRecipes = useAppStore((state) => state.searchRecipes);
+	const categories = useAppStore((state) => state.categories);
+	useEffect(() => {
+		fetchCategories();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const handleChange = (
+		e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+	) => {
+		setSearchFilters({
+			...searchFilters,
+			[e.target.name]: e.target.value,
+		});
+	};
+
+	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		// TODO: validar
+		if (Object.values(searchFilters).includes('')) {
+			console.log('Todos los campos son obligatorios');
+			return;
+		}
+
+		// Consultar las recetas
+		searchRecipes(searchFilters);
+	};
+
 	return (
 		<header
 			className={
@@ -39,7 +74,9 @@ const Header = () => {
 					</nav>
 				</div>
 				{isHome && (
-					<form className='md:w-1/2 2xl:w-1/3 bg-orange-500 my-4 p-10 rounded-lg shadow-md space-y-6'>
+					<form
+						className='md:w-1/2 2xl:w-1/3 bg-orange-500 my-4 p-10 rounded-lg shadow-md space-y-6'
+						onSubmit={handleSubmit}>
 						<div className='space-y-4'>
 							<label
 								htmlFor='ingredient'
@@ -52,6 +89,8 @@ const Header = () => {
 								id='ingredient'
 								name='ingredient'
 								className='p-3 w-full rounded-lg focus:outline-none'
+								onChange={handleChange}
+								value={searchFilters.ingredient}
 							/>
 						</div>
 						<div className='space-y-4'>
@@ -61,10 +100,19 @@ const Header = () => {
 								Categoría
 							</label>
 							<select
+								className='p-3 w-full rounded-lg focus:outline-none'
 								id='category'
 								name='category'
-								className='p-3 w-full rounded-lg focus:outline-none'>
+								onChange={handleChange}
+								value={searchFilters.category}>
 								<option value=''>-- Seleccione --</option>
+								{categories.drinks.map((category) => (
+									<option
+										key={category.strCategory}
+										value={category.strCategory}>
+										{category.strCategory}
+									</option>
+								))}
 							</select>
 						</div>
 						<input
