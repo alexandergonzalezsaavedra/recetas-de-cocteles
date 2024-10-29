@@ -1,12 +1,30 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useAppStore } from '../../stores/useAppStore';
+import { Recipe } from '../../types';
 
 export default function Modal() {
 	const modal = useAppStore((state) => state.modal);
 	const closeModal = useAppStore((state) => state.closeModal);
-	const recipe = useAppStore((state) => state.selectedRecipe);
-	console.log(recipe);
+	const selectedRecipe = useAppStore((state) => state.selectedRecipe);
+	const rederIngredients = () => {
+		const ingredients: JSX.Element[] = [];
+		for (let i = 1; i <= 6; i++) {
+			const ingredient =
+				selectedRecipe[`strIngredient${i}` as keyof Recipe];
+			const mesure = selectedRecipe[`strMeasure${i}` as keyof Recipe];
+			if (ingredient && mesure) {
+				ingredients.push(
+					<li
+						key={i}
+						className='text-lg font-normal'>
+						{ingredient} - {mesure}
+					</li>
+				);
+			}
+		}
+		return ingredients;
+	};
 	return (
 		<>
 			<Transition
@@ -42,8 +60,13 @@ export default function Modal() {
 									<Dialog.Title
 										as='h3'
 										className='text-gray-900 text-4xl font-extrabold my-5 text-center'>
-										Titulo Aquí
+										{selectedRecipe.strDrink}
 									</Dialog.Title>
+									<img
+										src={selectedRecipe.strDrinkThumb}
+										alt={selectedRecipe.strDrink}
+										className='mx-auto w-96'
+									/>
 									<Dialog.Title
 										as='h3'
 										className='text-gray-900 text-2xl font-extrabold my-5'>
@@ -54,6 +77,10 @@ export default function Modal() {
 										className='text-gray-900 text-2xl font-extrabold my-5'>
 										Instrucciones
 									</Dialog.Title>
+									<p className='text-lg'>
+										{selectedRecipe.strInstructions}
+									</p>
+									<p>{rederIngredients()}</p>
 								</Dialog.Panel>
 							</Transition.Child>
 						</div>
