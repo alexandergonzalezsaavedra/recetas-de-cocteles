@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, ChangeEvent, FormEvent } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../stores/useAppStore';
 const Header = () => {
+	const showNotification = useAppStore((state) => state.showNotification);
+
 	const initialSatate = {
 		ingredient: '',
 		category: '',
@@ -17,9 +19,7 @@ const Header = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const handleChange = (
-		e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
-	) => {
+	const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
 		setSearchFilters({
 			...searchFilters,
 			[e.target.name]: e.target.value,
@@ -28,21 +28,20 @@ const Header = () => {
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		// TODO: validar
+		// validar
 		if (Object.values(searchFilters).includes('')) {
-			console.log('Todos los campos son obligatorios');
+			showNotification({
+				text: 'Todos los campos son obligatorios',
+				error: true,
+			});
 			return;
 		}
-
 		// Consultar las recetas
 		searchRecipes(searchFilters);
 	};
 
 	return (
-		<header
-			className={
-				isHome ? 'bg-header bg-center bg-cover' : 'bg-slate-800'
-			}>
+		<header className={isHome ? 'bg-header bg-center bg-cover' : 'bg-slate-800'}>
 			<div className='mx-auto container px-5 py-16'>
 				<div className='flex justify-between items-center'>
 					<div>
